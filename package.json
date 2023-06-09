@@ -1,8 +1,8 @@
 {
   "name": "employee-tracker",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Employee department and role database tracker",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,7 +18,8 @@
     "console.table": "^0.10.0",
     "dotenv": "^16.1.4",
     "inquirer": "^8.2.5",
-    "mysql2": "^3.3.3"
+    "mysql2": "^3.3.3",
+    "sequelize": "^6.3.5"
   },
   "bugs": {
     "url": "https://github.com/johnnyowen/Employee-Tracker/issues"
