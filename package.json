@@ -1,0 +1,27 @@
+{
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/johnnyowen/Employee-Tracker.git"
+  },
+  "keywords": [],
+  "author": "John Owen",
+  "license": "ISC",
+  "dependencies": {
+    "asciiart-logo": "^0.2.7",
+    "console.table": "^0.10.0",
+    "dotenv": "^16.1.4",
+    "inquirer": "^8.2.5",
+    "mysql2": "^3.3.3"
+  },
+  "bugs": {
+    "url": "https://github.com/johnnyowen/Employee-Tracker/issues"
+  },
+  "homepage": "https://github.com/johnnyowen/Employee-Tracker#readme"
+}
