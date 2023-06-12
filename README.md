@@ -35,6 +35,4 @@ If there is any questions feel free to contact me through [GitHub](https://githu
 
 https://drive.google.com/file/d/1RWv_2xF-dP540oSDXQG5nhlkTh1s4mH7/view
 
-and simple ER diagram, will post better one soon
-
-![image](https://github.com/johnnyowen/Employee-Tracker/assets/127053240/cfdc6d60-24b3-495f-98c2-fa3110c9455f)
+![image](https://github.com/johnnyowen/Employee-Tracker/assets/127053240/02a3ee20-5862-4a4c-9bc0-a3dc46b001b4)
