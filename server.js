@@ -38,6 +38,9 @@ const question = [{
         'Delete A Department',
         'Delete A Role',
         'Delete An Employee',
+        'View Employees Under A Manager',
+        'View Employeees In Department',
+        'View Yearly Labor Budget Of A Department',
         'Exit']
 }];
 
@@ -67,6 +70,12 @@ function runEmpTracker() {
             deleteRole();
         } else if (answer.what === 'Delete An Employee') {
             deleteEmployee();
+        } else if (answer.what === 'View Employees Under A Manager') {
+            viewByManager();
+        } else if (answer.what === 'View Employeees In Department') {
+            viewByDepartment();
+        } else if (answer.what === 'View Yearly Labor Budget Of A Department') {
+            viewLaborPerDepartment();
         } else if (answer.what === 'Exit') {
             console.log('You have exited Employee Tracker, goodbye!');
             process.exit();
@@ -91,8 +100,8 @@ function viewAllRoles() {
     console.log('Viewing All Roles');
     // Grabs just the information I want to display
     const sql = `SELECT roles.id, roles.title, roles.salary, department.dep_name AS department
-FROM roles
-JOIN department ON roles.department_id = department.id`
+    FROM roles
+    JOIN department ON roles.department_id = department.id`
     connection.query(sql, (err, results) => {
         // Shows Table
         console.table(results); 
@@ -107,11 +116,11 @@ function viewAllEmployees() {
     console.log('Viewing All Employees');
     // Uses JOIN to display all the things I want, CONCAT function displays manager name instead of number
     const sql = `SELECT employee.first_name, employee.last_name, roles.title, roles.salary, department.dep_name,
-CONCAT(e.first_name, ' ' ,e.last_name) AS Manager 
-FROM employee 
-INNER JOIN roles ON roles.id = employee.role_id 
-INNER JOIN department ON department.id = roles.department_id 
-LEFT JOIN employee e ON employee.manager_id = e.id;`
+    CONCAT(e.first_name, ' ' ,e.last_name) AS Manager 
+    FROM employee 
+    INNER JOIN roles ON roles.id = employee.role_id 
+    INNER JOIN department ON department.id = roles.department_id 
+    LEFT JOIN employee e ON employee.manager_id = e.id;`
     connection.query(sql, (err, results) => {
         // Shows Table
         console.table(results); 
@@ -441,6 +450,111 @@ function deleteEmployee() {
         });
     });
 };
+
+// So much writing!! This views all employees assigned to a manager
+function viewByManager() {
+    // First select all employees who are a manager
+    connection.query(`SELECT * FROM employee
+    WHERE manager_id IS NULL;`, (err, managerRes) => {
+        const managerChoice = [];
+        managerRes.forEach(({ first_name, last_name, id }) => {
+            managerChoice.push({
+                name: first_name + " " + last_name,
+                value: id
+            });
+        });
+        // Ask who we are choosing to display workers under
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'manager',
+                message: 'Which Manager would you like to View the Employees of?',
+                choices: managerChoice
+            }
+        ])
+        // Show reaults
+        .then((answers) => {
+            connection.query(`SELECT CONCAT(e.first_name, ' ', e.last_name) AS Underlings
+            FROM employee AS e
+            WHERE e.manager_id = ${answers.manager};`, (err, res) => {
+                // Shows Table
+                console.table(res);
+                runEmpTracker();
+            })
+        });
+    });
+};
+
+// This views all employees assigned to a department, using the role_id and department_id
+function viewByDepartment() {
+    connection.query('SELECT * FROM department', (err, depRes) => {
+        // Departments array for the choices
+        const departments = [];
+         depRes.forEach(({ dep_name, id }) => {
+            departments.push({
+                name: dep_name,
+                value: id
+            });
+         });
+         inquirer.prompt([
+            {
+                type: 'list',
+                name: 'department',
+                message: 'Which Department would you like to View the Employees of?',
+                choices: departments
+            }
+        ])
+        // Joins all the tables so we can view the employees by department
+        .then((answers) => {
+            connection.query(`SELECT e.first_name, e.last_name, d.dep_name, r.title
+            FROM employee AS e
+            JOIN roles AS r ON e.role_id = r.id
+            JOIN department AS d ON r.department_id = d.id
+            WHERE d.id = ${answers.department}
+            ORDER BY d.dep_name, e.last_name, e.first_name;`, (err, res) => {
+                            // Shows Table
+                            console.table(res);
+                            runEmpTracker();
+            })
+        });
+    });
+};
+
+// And finally we can view the total labor 
+function viewLaborPerDepartment() {
+    connection.query('SELECT * FROM department', (err, depRes) => {
+        // Departments array for the choices
+        const departments = [];
+         depRes.forEach(({ dep_name, id }) => {
+            departments.push({
+                name: dep_name,
+                value: id
+            });
+         });
+         inquirer.prompt([
+            {
+                type: 'list',
+                name: 'department',
+                message: 'Which Department would you like to View the Yearly Labor Budget(total of all employees salaries) of?',
+                choices: departments
+            }
+        ])
+        // Uses SUM to add salaries and JOINS to join tables, to view how expensive people are!
+        .then((answers) => {
+            connection.query(`SELECT d.dep_name, SUM(r.salary) AS total_salary
+            FROM employee AS e
+            JOIN roles AS r ON e.role_id = r.id
+            JOIN department AS d ON r.department_id = d.id
+            WHERE d.id = ${answers.department};`, (err, res) => {
+                            // Shows Table
+                            console.table(res);
+                            runEmpTracker();
+            })
+        });
+    });
+};
+
+// I should split this file up, maybe I will do that in future
 
 // Runs the inquirer
 runEmpTracker();
