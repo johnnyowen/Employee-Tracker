@@ -35,3 +35,4 @@ If there is any questions feel free to contact me through [GitHub](https://githu
 
 https://drive.google.com/file/d/1RWv_2xF-dP540oSDXQG5nhlkTh1s4mH7/view
 
+![image](https://github.com/johnnyowen/Employee-Tracker/assets/127053240/cfdc6d60-24b3-495f-98c2-fa3110c9455f)
