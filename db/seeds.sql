@@ -1,10 +1,12 @@
 INSERT INTO department (dep_name)
+-- My Departments
 VALUES  ('Management'),
         ('Sales'),
         ('IT'),
         ('Accounting');
 
 INSERT INTO roles (title, salary, department_id)
+-- Roles with fair salaries across the board! which means it is obviously a made up company... :(
 VALUES  ('General Manager', 150000, 1),
         ('Assiatant Manager', 120000, 1),
         ('Sales Lead', 90000, 2),
@@ -15,6 +17,7 @@ VALUES  ('General Manager', 150000, 1),
         ('Accounting Assistant', 80000, 4);
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
+-- Employees inspired by musical artists on Spotify and 007
 VALUES  ('Masayoshi', 'Takanaka', 1, null),
         ('Fenne', 'Lily', 3, null),
         ('DJ', 'Gigola', 5, null), 
