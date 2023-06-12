@@ -2,6 +2,7 @@ const cTable = require('console.table');
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
 require('dotenv').config();
+
 const logo = require('asciiart-logo');
 const config = require('./package.json');
 console.log(logo(config).render());
@@ -17,20 +18,24 @@ const connection = mysql.createConnection(
     console.log(`Connected to employee_tracker_db`)
 );
 
-connection.connect(err => {
-    if (err) throw err;
-    console.log('connected as id ' + connection.threadId);
-    runEmpTracker();
-  });
-
 const questions = [{
     type: "list",
     name: "what",
     message: "What would you like to do?",
-    choices: ['View All Departments', 'View All Roles', 'View All Employees', 'Add A Department', 'Add A Role', 'Add An Employee', 'Update An Employee Role', 'Exit']
+    choices: [
+        'View All Departments', 
+        'View All Roles', 
+        'View All Employees', 
+        'Add A Department', 
+        'Add A Role', 
+        'Add An Employee', 
+        'Update An Employee Role', 
+        'Update An Employee Manager',
+        'Delete An Employee',
+        'Exit']
 }];
 
-function runEmpTracker () { 
+function runEmpTracker() { 
     inquirer.prompt(questions)
     .then((answer) => {
         if (answer.what === 'View All Departments') {
@@ -47,6 +52,10 @@ function runEmpTracker () {
             addEmployee();
         } else if (answer.what === 'Update An Employee Role') {
             updateEmployeeRole();
+        } else if (answer.what === 'Update An Employee Manager') {
+            updateEmployeeManager();
+        } else if (answer.what === 'Delete An Employee') {
+            deleteEmployee();
         } else if (answer.what === 'Exit') {
             console.log('You have exited Employee Tracker, goodbye!');
             process.exit();
@@ -65,7 +74,10 @@ function viewAllDepartments() {
 
 function viewAllRoles() {
     console.log('Viewing All Roles');
-    connection.query('SELECT * FROM roles', (err, results) => {
+    const sql = `SELECT roles.id, roles.title, roles.salary, department.dep_name AS department
+FROM roles
+JOIN department ON roles.department_id = department.id`
+    connection.query(sql, (err, results) => {
         console.table(results); 
         runEmpTracker();
       }
@@ -74,7 +86,13 @@ function viewAllRoles() {
 
 function viewAllEmployees() {
     console.log('Viewing All Employees');
-    connection.query('SELECT * FROM employee', (err, results) => {
+    const sql = `SELECT employee.first_name, employee.last_name, roles.title, roles.salary, department.dep_name, 
+CONCAT(e.first_name, ' ' ,e.last_name) AS Manager 
+FROM employee 
+INNER JOIN roles ON roles.id = employee.role_id 
+INNER JOIN department ON department.id = roles.department_id 
+LEFT JOIN employee e ON employee.manager_id = e.id;`
+    connection.query(sql, (err, results) => {
         console.table(results); 
         runEmpTracker();
       }
@@ -194,7 +212,7 @@ function updateEmployeeRole() {
         });
         connection.query('SELECT * FROM roles', (err, roleRes) => {
             const roles = [];
-             roleRes.forEach(({ title, id}) => {
+             roleRes.forEach(({ title, id }) => {
                 roles.push({
                     name: title,
                     value: id
@@ -204,12 +222,12 @@ function updateEmployeeRole() {
                 {
                     type: 'list',
                     name: 'employee',
-                    message: 'Which employee would you like to update?',
+                    message: 'Which Employee would you like to update?',
                     choices: empChoice
                 },{
                     type: 'list',
                     name: 'role',
-                    message: 'What new role does this employee have?',
+                    message: 'What new role does this Employee have?',
                     choices: roles
                 }
              ])
@@ -222,3 +240,62 @@ function updateEmployeeRole() {
         });
     });
 };
+
+function updateEmployeeManager() {
+    connection.query('SELECT * FROM employee', (err, empRes) => {
+        const empChoice = [];
+        empRes.forEach(({ first_name, last_name, id }) => {
+            empChoice.push({
+                name: first_name + " " + last_name,
+                value: id
+            });
+        });
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'employee',
+                message: 'Which Employee has a new Manager?',
+                choices: empChoice
+            },{
+                type: 'list',
+                name: 'newManager',
+                message: 'Who is the new Manager of this Employee?',
+                choices: empChoice
+            }
+        ])
+        .then((answers) => {
+            connection.query(`UPDATE employee SET manager_id = ${answers.newManager} WHERE id = ${answers.employee}`, () => {
+                console.log('Successfully Updated The Manager For This Employee');
+                viewAllEmployees();
+            });
+        });
+    });
+};
+
+function deleteEmployee() {
+    connection.query('SELECT * FROM employee', (err, empRes) => {
+        const empChoice = [];
+        empRes.forEach(({ first_name, last_name, id }) => {
+            empChoice.push({
+                name: first_name + " " + last_name,
+                value: id
+            });
+        });
+        inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'employee',
+                    message: 'Which Employee would you like to DELETE?',
+                    choices: empChoice
+                }
+            ])
+        .then((answers) => {
+            connection.query(`DELETE FROM employee WHERE id = ${answers.employee};`, (err, res) => {
+                viewAllEmployees();
+
+            });
+        });
+    });
+};
+
+runEmpTracker();
