@@ -554,7 +554,7 @@ function viewLaborPerDepartment() {
     });
 };
 
-// I should split this file up, maybe I will do that in future
+// I should split this file up, maybe I will do that in the future
 
 // Runs the inquirer
 runEmpTracker();
