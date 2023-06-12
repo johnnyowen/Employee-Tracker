@@ -160,7 +160,7 @@ function addRole() {
             };
             departments.push(depObj);
         });
-        // Questions abou t new Role
+        // Questions about new Role
         inquirer.prompt([
                 {
                 type: 'input',
