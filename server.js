@@ -249,7 +249,6 @@ function addEmployee() {
 
 // Updating an Employee Role
 function updateEmployeeRole() {
-
     connection.query('SELECT * FROM employee', (err, empRes) => {
         // First we create employees array
         const empChoice = [];
