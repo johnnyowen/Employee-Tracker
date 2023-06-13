@@ -169,7 +169,7 @@ function addRole() {
             },{
                 type: 'input',
                 name: 'roleSalary',
-                message: 'What is the salary of the new Role?'
+                message: 'What is the salary of the new Role? HAS TO BE A NUMBER, NO $ NECESSARY'
             },{
                 type: 'list',
                 name: 'roleDep',
@@ -179,8 +179,9 @@ function addRole() {
         ])
         // Creates new Role
         .then((answer) => {
-            connection.query('INSERT INTO roles SET ?',{title: answer.roleTitle, salary: answer.roleSalary, department_id: answer.roleDep}, (err, results) => {
+            connection.query('INSERT INTO roles SET ?', {title: answer.roleTitle, salary: answer.roleSalary, department_id: answer.roleDep}, (err, results) => {
                 // Shows updated Table
+                console.log(answer)
                 viewAllRoles();
                 console.log('Successfully Added A Role');
             });
